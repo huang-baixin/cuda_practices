@@ -5,6 +5,12 @@
 
 #include "../common.h"
 
+
+// TODO: benchmark 
+
+
+// #define BENCHMAKR_SYNC  do {}while(0);
+
 __global__ void hello_world() {
     printf("hello world\n");
 }
@@ -17,24 +23,12 @@ __global__ void print_dims() {
 }
 
 
-// add [4090, 4096]
-__global__ void vector_add_f32(float* src1, float* src2, float* dst) {
-
-    
-    
+__global__ test_bank_confict() {
 
 }
 
 
-
-
-void host_mem_alloc_and_init() {
-
-}
-
-// type
-void mem_host_to_device(void* dst, void* src, size_t size) {
-
+__global__ test_global_memory_() {
 
 }
 
@@ -43,9 +37,7 @@ __global__ void vector_add(const float* A, const float* B, float* C, int N) {
     // what should we consider ehile wo are coding a kernel?
     int idx = blockIdx.x * blockDim.x + threadIdx.x; // 0 - 255
     C[idx] = A[idx] + B[idx];
-    
 }
-
 
 __global__ void mat_add(const float* A, const float* B, float* C, int cols, int rows) {
     int cur_col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -53,6 +45,47 @@ __global__ void mat_add(const float* A, const float* B, float* C, int cols, int 
     int idx = cur_row * cols + cur_col;
     C[idx] = A[idx] + B[idx];
 }
+
+
+// todo : add(vec, mat) // vec expand
+
+__global__ void silu_f32(const float* A, const float* B, float* C, int cols, int rows) {
+
+
+}
+
+__global__ void flash_attn_f32(const float* A, const float* B, float* C, int cols, int rows) {
+
+
+}
+
+__global__ void rope_f32(const float* A, const float* B, float* C, int cols, int rows) {
+
+
+}
+
+
+__global__ void mul_mat_vec_simple_f32(const float* A, const float* B, float* C, int cols, int rows) {
+    // A[]
+    // B[]
+    // c[]
+
+
+}
+
+__global__ void mul_mat_simple_f32(const float* src0, const float* src1, float* dst, int cols, int rows) {
+
+
+}
+
+
+__global__ void softmax_simple_f32(const float* src0, const float* src1, float* dst, int cols, int rows) {
+    // softmax : 
+
+
+}
+
+// qianzuihe 
 
 
 int vec_add_demo() {  
