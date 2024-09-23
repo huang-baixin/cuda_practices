@@ -1,4 +1,4 @@
-APPS=hello
+APPS=hello_world
 
 all : ${APPS}
 
