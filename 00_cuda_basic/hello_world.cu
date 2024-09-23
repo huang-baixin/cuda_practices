@@ -47,6 +47,14 @@ __global__ void vector_add(const float* A, const float* B, float* C, int N) {
 }
 
 
+__global__ void mat_add(const float* A, const float* B, float* C, int cols, int rows) {
+    int cur_col = blockIdx.x * blockDim.x + threadIdx.x;
+    int cur_row = blockIdx.y * blockDim.y + threadIdx.y;
+    int idx = cur_row * cols + cur_col;
+    C[idx] = A[idx] + B[idx];
+}
+
+
 int vec_add_demo() {  
     int N = 4096;
     size_t size = N * sizeof(float);  
@@ -72,13 +80,26 @@ int vec_add_demo() {
     cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);  
     cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);  
 
-    // 256 threads per block (block_size)
-    int threadsPerBlock = 256; // 每个块中的线程数  
-    // 16 block per grid (grid_size)
-    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock; // 总块数  
+    {
+        // 256 threads per block (block_size)
+        int threadsPerBlock = 256; // 每个块中的线程数  
+        // 16 block per grid (grid_size)
+        int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock; // 总块数  
+        // 启动CUDA内核  
+        // vector_add<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);  
+    }
 
-    // 启动CUDA内核  
-    vector_add<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);  
+    {
+        // [1024, 4] + [1024, 4]
+        int cols  = 1024;
+        int rows= 4;
+        dim3 threadsPerBlock(64, 4, 1);
+        dim3 blocksPerGrid( (cols + threadsPerBlock.x - 1) / threadsPerBlock.x, (rows + threadsPerBlock.y - 1) / threadsPerBlock.y, 1);
+        mat_add<<<threadsPerBlock, blocksPerGrid>>>(d_A, d_B, d_C, cols, rows);
+
+    }
+
+
 
     // 从设备拷贝结果回主机  
     cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost);  
@@ -99,6 +120,9 @@ int vec_add_demo() {
     return 0;  
 } 
 
+
+
+// TODO: kernal elapsed 
 
 
 int main() {
