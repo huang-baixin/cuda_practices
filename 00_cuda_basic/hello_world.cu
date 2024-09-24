@@ -47,6 +47,81 @@ __global__ void mat_add(const float* A, const float* B, float* C, int cols, int 
 }
 
 
+
+#define OFFSET(cur_row, cur_col, row_size) ((cur_row * row_size) + (col))
+
+__global__ void mul_mat_simple(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
+    // [M, K] x [K, N]
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+
+    float psum = 0.0f;
+    
+    for (int k = 0; k < K; ++k) {
+        // A[row, k], B[k, col]
+        psum = A(OFFSET(row, k, K)) * B(OFFSET(k, col, N));
+    }
+    C[OFFSET(row, col, N)] = psum;
+}
+
+
+
+__global__ void mul_mat(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
+    // [M, K] x [K, N]
+    // TODO: use template
+    const int block_m = 128;
+    const int block_n = 128;
+    const int block_k = 8;
+
+    const int tile_m = 8;
+    const int tile_n = 8;
+
+    const int bx = blockIdx.x;
+    const int by = blockIdx.y;
+    const int tx = threadIdx.x;
+    const int ty = threadIdx.y;
+    const int g_tid = ty * blockDim.x + tx; 
+
+    __shared__ float s_a[block_m][block_k];
+    __shared__ float s_b[block_k][block_n];
+
+    float reg_c[tile_m][tilen];
+
+    // int load_a_smem_m = tid >> 1;
+    // int load_a_smem_k = (tid & 1) << 2; // (tid % 2 == 0) ? 0 : 4
+
+    // int load_b_smem_k = tid >> 5;
+    // int load_b_smem_n = (tid & 5) << 2; // (tid % 32) * 4
+
+    // split by k
+    for (int bk = 0; bk < (K + block_k - 1) / block_k; ++bk) {
+        // 1.
+
+
+        // ensure that all data has been copied to smem
+        __synctheads();
+
+        // 2. 
+        // for () {
+        //     __syncthreads();
+        // }
+
+
+        // 3.  
+
+
+
+    }
+
+
+
+
+    //  
+}
+
+
+
+
 // todo : add(vec, mat) // vec expand
 
 __global__ void silu_f32(const float* A, const float* B, float* C, int cols, int rows) {
@@ -79,16 +154,55 @@ __global__ void mul_mat_simple_f32(const float* src0, const float* src1, float* 
 }
 
 
-__global__ void softmax_simple_f32(const float* src0, const float* src1, float* dst, int cols, int rows) {
-    // softmax : 
+__global__ void softmax_simple_f32(const float* src0, float* dst, int size, bool inplace) {
+    // saft-softmax
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
+    float max_elem = -FLT_MAX;
 
+    // find max elem
+    for (int i = 0; i < size; ++i) {
+        max_elem = fmaxf(src0[i], max_elem);
+    }
+
+    // cal sum
+    float sum = 0.0f;
+    for (int i = 0; i < size; ++i) {
+        sum += expf(src0[i] - max_elem);
+    }
+
+    // cal softmax
+    dst[idx] = expf(src0[idx] - max_elem) / sum;
 }
+
+__global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bool inplace) {
+    // saft-softmax
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    float max_elem = -FLT_MAX;
+
+    // find max elem
+    for (int i = 0; i < size; ++i) {
+        max_elem = fmaxf(src0[i], max_elem);
+    }
+
+    // cal sum
+    float sum = 0.0f;
+    for (int i = 0; i < size; ++i) {
+        sum += expf(src0[i] - max_elem);
+    }
+
+    // cal softmax
+    dst[idx] = expf(src0[idx] - max_elem) / sum;
+}
+
+
+
+
 
 // qianzuihe 
 
-
-int vec_add_demo() {  
+int mul_mat_demo() {  
     int N = 4096;
     size_t size = N * sizeof(float);  
 
@@ -152,6 +266,71 @@ int vec_add_demo() {
 
     return 0;  
 } 
+
+int vec_add_demo() {  
+    int N = 4096;
+    size_t size = N * sizeof(float);  
+
+    float* h_A = (float*)malloc(size);  
+    float* h_B = (float*)malloc(size);  
+    float* h_C = (float*)malloc(size);  
+
+    for (int i = 0; i < N; ++i) {  
+        h_A[i] = i;  
+        h_B[i] = i * 2.0f; // 例如，让B为A的两倍  
+    }  
+
+    // 在设备上分配内存  
+    float *d_A, *d_B, *d_C;  
+    cudaMalloc(&d_A, size);  
+    cudaMalloc(&d_B, size);  
+    cudaMalloc(&d_C, size);  
+
+    // 将数据从主机拷贝到设备  
+    cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);  
+    cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);  
+
+    {
+        // 256 threads per block (block_size)
+        int threadsPerBlock = 256; // 每个块中的线程数  
+        // 16 block per grid (grid_size)
+        int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock; // 总块数  
+        // vector_add<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);  
+    }
+
+    {
+        // [1024, 4] + [1024, 4]
+        int cols  = 1024;
+        int rows= 4;
+        dim3 threadsPerBlock(64, 4, 1);
+        dim3 blocksPerGrid( (cols + threadsPerBlock.x - 1) / threadsPerBlock.x, (rows + threadsPerBlock.y - 1) / threadsPerBlock.y, 1);
+        mat_add<<<threadsPerBlock, blocksPerGrid>>>(d_A, d_B, d_C, cols, rows);
+
+    }
+    cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost);  
+    for (int i = 0; i < 4096; i+=256) {  
+        std::cout << "C[" << i << "] = " << h_C[i] << std::endl; // 输出前10个结果  
+    }  
+    // 释放设备和主机内存  
+    cudaFree(d_A);  
+    cudaFree(d_B);  
+    cudaFree(d_C);  
+    free(h_A);  
+    free(h_B);  
+    free(h_C);  
+
+    return 0;  
+} 
+
+
+void test_stream_evect() {
+
+}
+
+
+void test_block_sched() {
+
+}
 
 
 
