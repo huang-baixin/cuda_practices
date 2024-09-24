@@ -23,12 +23,12 @@ __global__ void print_dims() {
 }
 
 
-__global__ test_bank_confict() {
+__global__ void test_bank_confict() {
 
 }
 
 
-__global__ test_global_memory_() {
+__global__ void test_global_memory_() {
 
 }
 
@@ -48,76 +48,76 @@ __global__ void mat_add(const float* A, const float* B, float* C, int cols, int 
 
 
 
-#define OFFSET(cur_row, cur_col, row_size) ((cur_row * row_size) + (col))
-
-__global__ void mul_mat_simple(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
-    // [M, K] x [K, N]
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-
-    float psum = 0.0f;
-    
-    for (int k = 0; k < K; ++k) {
-        // A[row, k], B[k, col]
-        psum = A(OFFSET(row, k, K)) * B(OFFSET(k, col, N));
-    }
-    C[OFFSET(row, col, N)] = psum;
-}
-
-
-
-__global__ void mul_mat(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
-    // [M, K] x [K, N]
-    // TODO: use template
-    const int block_m = 128;
-    const int block_n = 128;
-    const int block_k = 8;
-
-    const int tile_m = 8;
-    const int tile_n = 8;
-
-    const int bx = blockIdx.x;
-    const int by = blockIdx.y;
-    const int tx = threadIdx.x;
-    const int ty = threadIdx.y;
-    const int g_tid = ty * blockDim.x + tx; 
-
-    __shared__ float s_a[block_m][block_k];
-    __shared__ float s_b[block_k][block_n];
-
-    float reg_c[tile_m][tilen];
-
-    // int load_a_smem_m = tid >> 1;
-    // int load_a_smem_k = (tid & 1) << 2; // (tid % 2 == 0) ? 0 : 4
-
-    // int load_b_smem_k = tid >> 5;
-    // int load_b_smem_n = (tid & 5) << 2; // (tid % 32) * 4
-
-    // split by k
-    for (int bk = 0; bk < (K + block_k - 1) / block_k; ++bk) {
-        // 1.
-
-
-        // ensure that all data has been copied to smem
-        __synctheads();
-
-        // 2. 
-        // for () {
-        //     __syncthreads();
-        // }
-
-
-        // 3.  
+// #define OFFSET(cur_row, cur_col, row_size) ((cur_row * row_size) + (col))
+// 
+// __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
+//     // [M, K] x [K, N]
+//     int col = blockIdx.x * blockDim.x + threadIdx.x;
+//     int row = blockIdx.y * blockDim.y + threadIdx.y;
+// 
+//     float psum = 0.0f;
+//     
+//     for (int k = 0; k < K; ++k) {
+//         // A[row, k], B[k, col]
+//         psum = A(OFFSET(row, k, K)) * B(OFFSET(k, col, N));
+//     }
+//     C[OFFSET(row, col, N)] = psum;
+// }
 
 
 
-    }
-
-
-
-
-    //  
-}
+// __global__ void mul_mat(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
+//     // [M, K] x [K, N]
+//     // TODO: use template
+//     const int block_m = 128;
+//     const int block_n = 128;
+//     const int block_k = 8;
+// 
+//     const int tile_m = 8;
+//     const int tile_n = 8;
+// 
+//     const int bx = blockIdx.x;
+//     const int by = blockIdx.y;
+//     const int tx = threadIdx.x;
+//     const int ty = threadIdx.y;
+//     const int g_tid = ty * blockDim.x + tx; 
+// 
+//     __shared__ float s_a[block_m][block_k];
+//     __shared__ float s_b[block_k][block_n];
+// 
+//     float reg_c[tile_m][tilen];
+// 
+//     // int load_a_smem_m = tid >> 1;
+//     // int load_a_smem_k = (tid & 1) << 2; // (tid % 2 == 0) ? 0 : 4
+// 
+//     // int load_b_smem_k = tid >> 5;
+//     // int load_b_smem_n = (tid & 5) << 2; // (tid % 32) * 4
+// 
+//     // split by k
+//     for (int bk = 0; bk < (K + block_k - 1) / block_k; ++bk) {
+//         // 1.
+// 
+// 
+//         // ensure that all data has been copied to smem
+//         __synctheads();
+// 
+//         // 2. 
+//         // for () {
+//         //     __syncthreads();
+//         // }
+// 
+// 
+//         // 3.  
+// 
+// 
+// 
+//     }
+// 
+// 
+// 
+// 
+//     //  
+// }
 
 
 
@@ -154,47 +154,47 @@ __global__ void mul_mat_simple_f32(const float* src0, const float* src1, float* 
 }
 
 
-__global__ void softmax_simple_f32(const float* src0, float* dst, int size, bool inplace) {
-    // saft-softmax
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+// __global__ void softmax_simple_f32(const float* src0, float* dst, int size, bool inplace) {
+//     // saft-softmax
+//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+// 
+//     float max_elem = -FLT_MAX;
+// 
+//     // find max elem
+//     for (int i = 0; i < size; ++i) {
+//         max_elem = fmaxf(src0[i], max_elem);
+//     }
+// 
+//     // cal sum
+//     float sum = 0.0f;
+//     for (int i = 0; i < size; ++i) {
+//         sum += expf(src0[i] - max_elem);
+//     }
+// 
+//     // cal softmax
+//     dst[idx] = expf(src0[idx] - max_elem) / sum;
+// }
 
-    float max_elem = -FLT_MAX;
-
-    // find max elem
-    for (int i = 0; i < size; ++i) {
-        max_elem = fmaxf(src0[i], max_elem);
-    }
-
-    // cal sum
-    float sum = 0.0f;
-    for (int i = 0; i < size; ++i) {
-        sum += expf(src0[i] - max_elem);
-    }
-
-    // cal softmax
-    dst[idx] = expf(src0[idx] - max_elem) / sum;
-}
-
-__global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bool inplace) {
-    // saft-softmax
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    float max_elem = -FLT_MAX;
-
-    // find max elem
-    for (int i = 0; i < size; ++i) {
-        max_elem = fmaxf(src0[i], max_elem);
-    }
-
-    // cal sum
-    float sum = 0.0f;
-    for (int i = 0; i < size; ++i) {
-        sum += expf(src0[i] - max_elem);
-    }
-
-    // cal softmax
-    dst[idx] = expf(src0[idx] - max_elem) / sum;
-}
+// __global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bool inplace) {
+//     // saft-softmax
+//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+// 
+//     float max_elem = -FLT_MAX;
+// 
+//     // find max elem
+//     for (int i = 0; i < size; ++i) {
+//         max_elem = fmaxf(src0[i], max_elem);
+//     }
+// 
+//     // cal sum
+//     float sum = 0.0f;
+//     for (int i = 0; i < size; ++i) {
+//         sum += expf(src0[i] - max_elem);
+//     }
+// 
+//     // cal softmax
+//     dst[idx] = expf(src0[idx] - max_elem) / sum;
+// }
 
 
 
@@ -206,24 +206,20 @@ int mul_mat_demo() {
     int N = 4096;
     size_t size = N * sizeof(float);  
 
-    // 在主机上分配内存  
     float* h_A = (float*)malloc(size);  
     float* h_B = (float*)malloc(size);  
     float* h_C = (float*)malloc(size);  
 
-    // 初始化输入数组  
     for (int i = 0; i < N; ++i) {  
         h_A[i] = i;  
         h_B[i] = i * 2.0f; // 例如，让B为A的两倍  
     }  
 
-    // 在设备上分配内存  
     float *d_A, *d_B, *d_C;  
     cudaMalloc(&d_A, size);  
     cudaMalloc(&d_B, size);  
     cudaMalloc(&d_C, size);  
 
-    // 将数据从主机拷贝到设备  
     cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);  
     cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);  
 
@@ -246,17 +242,12 @@ int mul_mat_demo() {
 
     }
 
-
-
-    // 从设备拷贝结果回主机  
     cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost);  
 
-    // 打印结果的前10个元素  
     for (int i = 0; i < 4096; i+=256) {  
         std::cout << "C[" << i << "] = " << h_C[i] << std::endl; // 输出前10个结果  
     }  
 
-    // 释放设备和主机内存  
     cudaFree(d_A);  
     cudaFree(d_B);  
     cudaFree(d_C);  
@@ -323,7 +314,7 @@ int vec_add_demo() {
 } 
 
 
-void test_stream_evect() {
+void test_stream_event() {
 
 }
 
@@ -332,12 +323,42 @@ void test_block_sched() {
 
 }
 
+void test_cublas() {
+
+}
+
 
 
 // TODO: kernal elapsed 
 
+void checkCudaErrors(cudaError_t err) {
+    if (err != cudaSuccess) {
+        fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(err));
+        exit(err);
+    }
+}
 
 int main() {
+    size_t size = 1;
+    size_t maxSize = 0;
+    void *d_ptr = nullptr;
+
+    // 逐步增加内存大小，直到分配失败
+    while (true) {
+        checkCudaErrors(cudaMalloc(&d_ptr, size));
+        maxSize = size;
+        // printf("Allocated %zu bytes\n", size);
+        printf("Allocated %.3f GB\n", size / (1024.f * 1024 * 1024));
+        // size *= 2; // 每次分配增加一倍
+        size += 128 * 1024 * 1024; // 每次分配增加一倍
+        checkCudaErrors(cudaFree(d_ptr)); // 释放内存
+    }
+
+    printf("Maximum global memory allocated: %zu bytes\n", maxSize);
+    return 0;
+}
+
+int main0() {
     // hello_world<<<1, 10>>>();
     // CHECK(cudaDeviceReset());
     {
