@@ -2,14 +2,40 @@
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 #include <iostream>
+#include <chrono>
+#include <time.h>
 
 #include "../common.h"
 
 
+#define OFFSET(cur_row, cur_col, row_size) ((cur_row * row_size) + (cur_col))
+
 // TODO: benchmark 
-
-
 // #define BENCHMAKR_SYNC  do {}while(0);
+
+
+__global__ void reduce_simple(float* src, float* dst) {
+    // the size of smem comes from launch-args of cuda kernel
+    extern __shared__ float smem[];
+
+}
+
+__global__ void reduce_interleaved_addr(float* src, float* dst) {
+    // the size of smem comes from launch-args of cuda kernel
+    extern __shared__ float smem[];
+
+}
+
+
+__global__ void warpReduce() {
+    int laneId = threadIdx.x & 0x1f;
+    int value = 31 - laneId;
+    for (int i=16; i>=1; i/=2)
+        value += __shfl_xor_sync(0xffffffff, value, i, 32);
+
+    printf("Thread %d final value = %d\n", threadIdx.x, value);
+}
+
 
 __global__ void hello_world() {
     printf("hello world\n");
@@ -45,12 +71,20 @@ __global__ void bcast2(float* a, float* b) {
 }
 
 
+static __device__ __forceinline__ float warp_reduce_sum(float x) {
+#pragma unroll
+    for (int mask = 16; mask > 0; mask >>= 1) {
+        x += __shfl_xor_sync(0xffffffff, x, mask, 32);
+    }
+    return x;
+}
 
-// // 
-// static __device__ __forceinline__ float warp_reduce__max(float x) {
+
+// // 这里因为是 forceinline 川进来的是一个数
+// static __device__ __forceinline__ float warp_reduce_max(float x) {
 // #pragma unroll
 //     for (int mask = 16; mask > 0; mask >>=1) {
-//         x = fmaxf(x, __shlf__xor_sync(0xffffffff, x, mask, 32));
+//         x = fmaxf(x, __shlf_xor_sync(0xffffffff, x, mask, 32));
 //     }
 //     return x;
 // }
@@ -60,7 +94,8 @@ __global__ void test_bank_confict() {
 }
 
 
-__global__ void test_global_memory_() {
+__global__ void test_global_memory_coalesce_access() {
+
 
 }
 
@@ -80,21 +115,20 @@ __global__ void mat_add(const float* A, const float* B, float* C, int cols, int 
 
 
 
-// #define OFFSET(cur_row, cur_col, row_size) ((cur_row * row_size) + (col))
-// 
-// __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
-//     // [M, K] x [K, N]
-//     int col = blockIdx.x * blockDim.x + threadIdx.x;
-//     int row = blockIdx.y * blockDim.y + threadIdx.y;
-// 
-//     float psum = 0.0f;
-//     
-//     for (int k = 0; k < K; ++k) {
-//         // A[row, k], B[k, col]
-//         psum = A(OFFSET(row, k, K)) * B(OFFSET(k, col, N));
-//     }
-//     C[OFFSET(row, col, N)] = psum;
-// }
+
+__global__ void mul_mat_simple(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
+    // [M, K] x [K, N]
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+
+    float psum = 0.0f;
+    
+    for (int k = 0; k < K; ++k) {
+        // A[row, k], B[k, col]
+        psum = A[OFFSET(row, k, K)] * B[OFFSET(k, col, N)];
+    }
+    C[OFFSET(row, col, N)] = psum;
+}
 
 
 
@@ -370,7 +404,9 @@ void checkCudaErrors(cudaError_t err) {
     }
 }
 
-int main() {
+
+
+void test_max_mem_size() {
     size_t size = 1;
     size_t maxSize = 0;
     void *d_ptr = nullptr;
@@ -385,8 +421,13 @@ int main() {
         size += 512 * 1024 * 1024; // 每次分配增加一倍
         checkCudaErrors(cudaFree(d_ptr)); // 释放内存
     }
-
     printf("Maximum global memory allocated: %zu bytes\n", maxSize);
+}
+
+int main() {
+    warpReduce<<< 1, 32 >>>();
+    cudaDeviceSynchronize();
+
     return 0;
 }
 
