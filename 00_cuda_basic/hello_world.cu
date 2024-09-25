@@ -23,6 +23,38 @@ __global__ void print_dims() {
 }
 
 
+__global__ void test_shfl_xor(int A[], int B[])
+{
+    int tid = threadIdx.x;
+    int best = B[tid];
+    int mask = 16;
+    best = __shfl_xor_sync(0xffffffff, best, mask, 8);
+    A[tid] = best;
+}
+
+
+
+__global__ void bcast2(float* a, float* b) {
+    int laneId = threadIdx.x;
+    float value;
+    for (int mask = 16; mask > 0; mask >>= 1) {
+        a[laneId] += __shfl_xor_sync(0xffffffff, a[laneId], mask, 32);
+        b[laneId] += __shfl_xor_sync(0xffffffff, b[laneId], mask, 32);
+        // break;
+    }
+}
+
+
+
+// // 
+// static __device__ __forceinline__ float warp_reduce__max(float x) {
+// #pragma unroll
+//     for (int mask = 16; mask > 0; mask >>=1) {
+//         x = fmaxf(x, __shlf__xor_sync(0xffffffff, x, mask, 32));
+//     }
+//     return x;
+// }
+
 __global__ void test_bank_confict() {
 
 }
@@ -350,7 +382,7 @@ int main() {
         // printf("Allocated %zu bytes\n", size);
         printf("Allocated %.3f GB\n", size / (1024.f * 1024 * 1024));
         // size *= 2; // 每次分配增加一倍
-        size += 128 * 1024 * 1024; // 每次分配增加一倍
+        size += 512 * 1024 * 1024; // 每次分配增加一倍
         checkCudaErrors(cudaFree(d_ptr)); // 释放内存
     }
 

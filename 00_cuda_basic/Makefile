@@ -1,4 +1,4 @@
-APPS=hello_world
+APPS=hello_world simpleShlf
 
 all : ${APPS}
 
