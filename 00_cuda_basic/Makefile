@@ -1,4 +1,5 @@
-APPS=demo simpleShlf
+APPS=demo simpleShfl reduceInteger 
+# APPS=simpleShfl
 
 all : ${APPS}
 

@@ -32,10 +32,8 @@ __global__ void warpReduce() {
     int value = 31 - laneId;
     for (int i=16; i>=1; i/=2)
         value += __shfl_xor_sync(0xffffffff, value, i, 32);
-
     printf("Thread %d final value = %d\n", threadIdx.x, value);
 }
-
 
 __global__ void hello_world() {
     printf("hello world\n");
@@ -48,7 +46,6 @@ __global__ void print_dims() {
     printf("%3d, %3d, %3d\n", gridDim.x, gridDim.y, gridDim.z);
 }
 
-
 __global__ void test_shfl_xor(int A[], int B[])
 {
     int tid = threadIdx.x;
@@ -57,8 +54,6 @@ __global__ void test_shfl_xor(int A[], int B[])
     best = __shfl_xor_sync(0xffffffff, best, mask, 8);
     A[tid] = best;
 }
-
-
 
 __global__ void bcast2(float* a, float* b) {
     int laneId = threadIdx.x;
@@ -70,7 +65,6 @@ __global__ void bcast2(float* a, float* b) {
     }
 }
 
-
 static __device__ __forceinline__ float warp_reduce_sum(float x) {
 #pragma unroll
     for (int mask = 16; mask > 0; mask >>= 1) {
@@ -79,8 +73,6 @@ static __device__ __forceinline__ float warp_reduce_sum(float x) {
     return x;
 }
 
-
-// // 这里因为是 forceinline 川进来的是一个数
 // static __device__ __forceinline__ float warp_reduce_max(float x) {
 // #pragma unroll
 //     for (int mask = 16; mask > 0; mask >>=1) {
@@ -95,8 +87,6 @@ __global__ void test_bank_confict() {
 
 
 __global__ void test_global_memory_coalesce_access() {
-
-
 }
 
 // CUDA内核函数：对两个数组进行加法运算
@@ -171,12 +161,7 @@ __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restr
 //         // for () {
 //         //     __syncthreads();
 //         // }
-// 
-// 
 //         // 3.  
-// 
-// 
-// 
 //     }
 // 
 // 
@@ -185,88 +170,43 @@ __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restr
 //     //  
 // }
 
-
-
-
 // todo : add(vec, mat) // vec expand
-
 __global__ void silu_f32(const float* A, const float* B, float* C, int cols, int rows) {
-
-
 }
 
 __global__ void flash_attn_f32(const float* A, const float* B, float* C, int cols, int rows) {
-
-
 }
 
 __global__ void rope_f32(const float* A, const float* B, float* C, int cols, int rows) {
-
-
 }
 
-
 __global__ void mul_mat_vec_simple_f32(const float* A, const float* B, float* C, int cols, int rows) {
-    // A[]
-    // B[]
-    // c[]
-
-
 }
 
 __global__ void mul_mat_simple_f32(const float* src0, const float* src1, float* dst, int cols, int rows) {
-
-
 }
 
 
-// __global__ void softmax_simple_f32(const float* src0, float* dst, int size, bool inplace) {
-//     // saft-softmax
-//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-// 
-//     float max_elem = -FLT_MAX;
-// 
-//     // find max elem
-//     for (int i = 0; i < size; ++i) {
-//         max_elem = fmaxf(src0[i], max_elem);
-//     }
-// 
-//     // cal sum
-//     float sum = 0.0f;
-//     for (int i = 0; i < size; ++i) {
-//         sum += expf(src0[i] - max_elem);
-//     }
-// 
-//     // cal softmax
-//     dst[idx] = expf(src0[idx] - max_elem) / sum;
-// }
 
-// __global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bool inplace) {
-//     // saft-softmax
-//     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-// 
-//     float max_elem = -FLT_MAX;
-// 
-//     // find max elem
-//     for (int i = 0; i < size; ++i) {
-//         max_elem = fmaxf(src0[i], max_elem);
-//     }
-// 
-//     // cal sum
-//     float sum = 0.0f;
-//     for (int i = 0; i < size; ++i) {
-//         sum += expf(src0[i] - max_elem);
-//     }
-// 
-//     // cal softmax
-//     dst[idx] = expf(src0[idx] - max_elem) / sum;
-// }
+
+__global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bool inplace) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    float max_elem = -INFINITY;
+    for (int i = 0; i < size; ++i) {
+        max_elem = fmaxf(src0[i], max_elem);
+    }
+
+    float sum = 0.0f;
+    for (int i = 0; i < size; ++i) {
+        sum += expf(src0[i] - max_elem);
+    }
+
+    dst[idx] = expf(src0[idx] - max_elem) / sum;
+}
 
 
 
 
-
-// qianzuihe 
 
 int mul_mat_demo() {  
     int N = 4096;
@@ -396,7 +336,6 @@ void test_cublas() {
 
 
 // TODO: kernal elapsed 
-
 void checkCudaErrors(cudaError_t err) {
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(err));
@@ -404,36 +343,29 @@ void checkCudaErrors(cudaError_t err) {
     }
 }
 
-
-
 void test_max_mem_size() {
     size_t size = 1;
     size_t maxSize = 0;
     void *d_ptr = nullptr;
-
-    // 逐步增加内存大小，直到分配失败
     while (true) {
         checkCudaErrors(cudaMalloc(&d_ptr, size));
         maxSize = size;
-        // printf("Allocated %zu bytes\n", size);
         printf("Allocated %.3f GB\n", size / (1024.f * 1024 * 1024));
-        // size *= 2; // 每次分配增加一倍
-        size += 512 * 1024 * 1024; // 每次分配增加一倍
-        checkCudaErrors(cudaFree(d_ptr)); // 释放内存
+        size += 512 * 1024 * 1024;
+        checkCudaErrors(cudaFree(d_ptr));
     }
     printf("Maximum global memory allocated: %zu bytes\n", maxSize);
 }
 
-int main() {
+
+int test_reduce() {
     warpReduce<<< 1, 32 >>>();
     cudaDeviceSynchronize();
-
     return 0;
 }
 
-int main0() {
-    // hello_world<<<1, 10>>>();
-    // CHECK(cudaDeviceReset());
+
+int main() {
     {
         dim3 grid(3, 1, 1);
         dim3 block(2, 1, 1);
@@ -452,3 +384,6 @@ int main0() {
     
     return 0;
 }
+
+
+

@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "env" : {
+                "DISPLAY":"localhost:10.0"
+            }
+        }
+
+    ]
+}
