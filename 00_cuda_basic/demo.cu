@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "../common.h"
+#include "op.cuh"
 
 
 #define OFFSET(cur_row, cur_col, row_size) ((cur_row * row_size) + (cur_col))
@@ -39,6 +40,12 @@ __global__ void hello_world() {
     printf("hello world\n");
 }
 
+__global__ void reduce_neighboreless(void* src, void* dst, size_t size) {
+    (float*)
+
+}
+
+
 __global__ void print_dims() {
     printf("%3d, %3d, %3d\n", threadIdx.x, threadIdx.y, threadIdx.z);
     printf("%3d, %3d, %3d\n", blockIdx.x, blockIdx.y, blockIdx.z);
@@ -61,7 +68,6 @@ __global__ void bcast2(float* a, float* b) {
     for (int mask = 16; mask > 0; mask >>= 1) {
         a[laneId] += __shfl_xor_sync(0xffffffff, a[laneId], mask, 32);
         b[laneId] += __shfl_xor_sync(0xffffffff, b[laneId], mask, 32);
-        // break;
     }
 }
 
@@ -72,6 +78,9 @@ static __device__ __forceinline__ float warp_reduce_sum(float x) {
     }
     return x;
 }
+
+
+
 
 // static __device__ __forceinline__ float warp_reduce_max(float x) {
 // #pragma unroll
@@ -120,8 +129,6 @@ __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restr
     C[OFFSET(row, col, N)] = psum;
 }
 
-
-
 // __global__ void mul_mat(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
 //     // [M, K] x [K, N]
 //     // TODO: use template
@@ -151,8 +158,6 @@ __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restr
 // 
 //     // split by k
 //     for (int bk = 0; bk < (K + block_k - 1) / block_k; ++bk) {
-//         // 1.
-// 
 // 
 //         // ensure that all data has been copied to smem
 //         __synctheads();
@@ -163,12 +168,8 @@ __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restr
 //         // }
 //         // 3.  
 //     }
-// 
-// 
-// 
-// 
-//     //  
 // }
+
 
 // todo : add(vec, mat) // vec expand
 __global__ void silu_f32(const float* A, const float* B, float* C, int cols, int rows) {
@@ -365,6 +366,25 @@ int test_reduce() {
 }
 
 
+void test_reduce() {
+    
+    size_t num = 4096;
+    size_t size = num * sizeof(float);
+    float src = (float*)calloc(size, sizeof(char));
+    float dst = (float*)calloc(size, sizeof(char));
+
+    // init_rand_f32();
+
+    float* src_d = NULL;
+    float* dst_h = NULL;
+    cudaMalloc(&src_d, size);
+    cudaMalloc(&dst_d, size);
+
+    cudaMemcpy(src_d, src, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(dst_d, dst, size, cudaMemcpyHostToDevice);
+
+}
+
 int main() {
     {
         dim3 grid(3, 1, 1);
@@ -384,6 +404,3 @@ int main() {
     
     return 0;
 }
-
-
-

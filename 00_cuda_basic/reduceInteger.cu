@@ -44,6 +44,11 @@ __global__ void reduceNeighbored (int *g_idata, int *g_odata, unsigned int n)
     // in-place reduction in global memory
     for (int stride = 1; stride < blockDim.x; stride *= 2)
     {
+        //  stride : 1, 2, 4, 8
+        //  2 * stride : 2, 4, 8
+        // 2 : 0 2 4 6  (stride 改变的元素的下标)
+        // 4 : 0 4 
+        // 8 : 0 
         if ((tid % (2 * stride)) == 0)
         {
             idata[tid] += idata[tid + stride];
@@ -108,7 +113,7 @@ __global__ void reduceInterleaved (int *g_idata, int *g_odata, unsigned int n)
     {
         if (tid < stride)
         {
-            idata[tid] += idata[tid + stride];
+            idata[tid] += idata[tid + stride]; // 可以留意到，中间的公式和 neightbored reduce 是一样的, 其实就是逆序
         }
 
         __syncthreads();
