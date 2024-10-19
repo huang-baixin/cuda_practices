@@ -15,7 +15,8 @@ void reduce_recursive_host(T* data, size_t size) {
 
 
 // 就是 cpu reduce 的简单实现
-__global__ void reduce_neighbored(float* src0, float* dst) {
+template<typename T, size_t size>
+__global__ void reduce_neighbored(T* src0, T* dst) {
     // we do the reduce in only one block
     unsigned int tid = threadIdx.x;
     // unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -31,7 +32,8 @@ __global__ void reduce_neighbored(float* src0, float* dst) {
     if (tid == 0) dst[blockIdx.x] = bptr[0];
 }
 
-__global__ void reduce_interleaved(float* src0, float* dst) {
+template<typename T, size_t size>
+__global__ void reduce_interleaved(T* src0, T* dst) {
     unsigned int tid = threadIdx.x;
     // unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -45,7 +47,8 @@ __global__ void reduce_interleaved(float* src0, float* dst) {
 }
 
 //  
-__global__ void reduce_neighboredless(float* src0, float* dst) {
+template<typename T, size_t size>
+__global__ void reduce_neighboredless(T* src0, T* dst) {
     unsigned int tid = threadIdx.x;
     unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -63,4 +66,19 @@ __global__ void reduce_neighboredless(float* src0, float* dst) {
 }
 
 
+template<typename T, size_t T>
+__global__ void reduce_unrolling_2(T* src0, T* dst) {
+
+}
+
+
+template<typename T, size_t T>
+__global__ void reduce_unrolling_4(T* src0, T* dst) {
+
+}
+
+template<typename T, size_t T>
+__global__ void reduce_unrolling_8(T* src0, T* dst) {
+
+}
 
