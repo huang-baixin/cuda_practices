@@ -11,23 +11,6 @@
 
 #define OFFSET(cur_row, cur_col, row_size) ((cur_row * row_size) + (cur_col))
 
-// TODO: benchmark 
-// #define BENCHMAKR_SYNC  do {}while(0);
-
-
-__global__ void reduce_simple(float* src, float* dst) {
-    // the size of smem comes from launch-args of cuda kernel
-    extern __shared__ float smem[];
-
-}
-
-__global__ void reduce_interleaved_addr(float* src, float* dst) {
-    // the size of smem comes from launch-args of cuda kernel
-    extern __shared__ float smem[];
-
-}
-
-
 __global__ void warpReduce() {
     int laneId = threadIdx.x & 0x1f;
     int value = 31 - laneId;
@@ -35,16 +18,6 @@ __global__ void warpReduce() {
         value += __shfl_xor_sync(0xffffffff, value, i, 32);
     printf("Thread %d final value = %d\n", threadIdx.x, value);
 }
-
-__global__ void hello_world() {
-    printf("hello world\n");
-}
-
-__global__ void reduce_neighboreless(void* src, void* dst, size_t size) {
-    (float*)
-
-}
-
 
 __global__ void print_dims() {
     printf("%3d, %3d, %3d\n", threadIdx.x, threadIdx.y, threadIdx.z);
@@ -79,26 +52,6 @@ static __device__ __forceinline__ float warp_reduce_sum(float x) {
     return x;
 }
 
-
-
-
-// static __device__ __forceinline__ float warp_reduce_max(float x) {
-// #pragma unroll
-//     for (int mask = 16; mask > 0; mask >>=1) {
-//         x = fmaxf(x, __shlf_xor_sync(0xffffffff, x, mask, 32));
-//     }
-//     return x;
-// }
-
-__global__ void test_bank_confict() {
-
-}
-
-
-__global__ void test_global_memory_coalesce_access() {
-}
-
-// CUDA内核函数：对两个数组进行加法运算
 __global__ void vector_add(const float* A, const float* B, float* C, int N) {
     // what should we consider ehile wo are coding a kernel?
     int idx = blockIdx.x * blockDim.x + threadIdx.x; // 0 - 255
@@ -129,66 +82,6 @@ __global__ void mul_mat_simple(const float* __restrict__ A, const float* __restr
     C[OFFSET(row, col, N)] = psum;
 }
 
-// __global__ void mul_mat(const float* __restrict__ A, const float* __restrict__ B, float* __restrict__ C, const int M, const int N, const int K) {
-//     // [M, K] x [K, N]
-//     // TODO: use template
-//     const int block_m = 128;
-//     const int block_n = 128;
-//     const int block_k = 8;
-// 
-//     const int tile_m = 8;
-//     const int tile_n = 8;
-// 
-//     const int bx = blockIdx.x;
-//     const int by = blockIdx.y;
-//     const int tx = threadIdx.x;
-//     const int ty = threadIdx.y;
-//     const int g_tid = ty * blockDim.x + tx; 
-// 
-//     __shared__ float s_a[block_m][block_k];
-//     __shared__ float s_b[block_k][block_n];
-// 
-//     float reg_c[tile_m][tilen];
-// 
-//     // int load_a_smem_m = tid >> 1;
-//     // int load_a_smem_k = (tid & 1) << 2; // (tid % 2 == 0) ? 0 : 4
-// 
-//     // int load_b_smem_k = tid >> 5;
-//     // int load_b_smem_n = (tid & 5) << 2; // (tid % 32) * 4
-// 
-//     // split by k
-//     for (int bk = 0; bk < (K + block_k - 1) / block_k; ++bk) {
-// 
-//         // ensure that all data has been copied to smem
-//         __synctheads();
-// 
-//         // 2. 
-//         // for () {
-//         //     __syncthreads();
-//         // }
-//         // 3.  
-//     }
-// }
-
-
-// todo : add(vec, mat) // vec expand
-__global__ void silu_f32(const float* A, const float* B, float* C, int cols, int rows) {
-}
-
-__global__ void flash_attn_f32(const float* A, const float* B, float* C, int cols, int rows) {
-}
-
-__global__ void rope_f32(const float* A, const float* B, float* C, int cols, int rows) {
-}
-
-__global__ void mul_mat_vec_simple_f32(const float* A, const float* B, float* C, int cols, int rows) {
-}
-
-__global__ void mul_mat_simple_f32(const float* src0, const float* src1, float* dst, int cols, int rows) {
-}
-
-
-
 
 __global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bool inplace) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -204,10 +97,6 @@ __global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bo
 
     dst[idx] = expf(src0[idx] - max_elem) / sum;
 }
-
-
-
-
 
 int mul_mat_demo() {  
     int N = 4096;
@@ -231,12 +120,8 @@ int mul_mat_demo() {
     cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);  
 
     {
-        // 256 threads per block (block_size)
         int threadsPerBlock = 256; // 每个块中的线程数  
-        // 16 block per grid (grid_size)
         int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock; // 总块数  
-        // 启动CUDA内核  
-        // vector_add<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);  
     }
 
     {
@@ -275,29 +160,23 @@ int vec_add_demo() {
 
     for (int i = 0; i < N; ++i) {  
         h_A[i] = i;  
-        h_B[i] = i * 2.0f; // 例如，让B为A的两倍  
+        h_B[i] = i * 2.0f;
     }  
 
-    // 在设备上分配内存  
     float *d_A, *d_B, *d_C;  
     cudaMalloc(&d_A, size);  
     cudaMalloc(&d_B, size);  
     cudaMalloc(&d_C, size);  
 
-    // 将数据从主机拷贝到设备  
     cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);  
     cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);  
 
     {
-        // 256 threads per block (block_size)
         int threadsPerBlock = 256; // 每个块中的线程数  
-        // 16 block per grid (grid_size)
         int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock; // 总块数  
-        // vector_add<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);  
     }
 
     {
-        // [1024, 4] + [1024, 4]
         int cols  = 1024;
         int rows= 4;
         dim3 threadsPerBlock(64, 4, 1);
@@ -309,7 +188,6 @@ int vec_add_demo() {
     for (int i = 0; i < 4096; i+=256) {  
         std::cout << "C[" << i << "] = " << h_C[i] << std::endl; // 输出前10个结果  
     }  
-    // 释放设备和主机内存  
     cudaFree(d_A);  
     cudaFree(d_B);  
     cudaFree(d_C);  
@@ -321,22 +199,6 @@ int vec_add_demo() {
 } 
 
 
-void test_stream_event() {
-
-}
-
-
-void test_block_sched() {
-
-}
-
-void test_cublas() {
-
-}
-
-
-
-// TODO: kernal elapsed 
 void checkCudaErrors(cudaError_t err) {
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(err));
@@ -344,36 +206,14 @@ void checkCudaErrors(cudaError_t err) {
     }
 }
 
-void test_max_mem_size() {
-    size_t size = 1;
-    size_t maxSize = 0;
-    void *d_ptr = nullptr;
-    while (true) {
-        checkCudaErrors(cudaMalloc(&d_ptr, size));
-        maxSize = size;
-        printf("Allocated %.3f GB\n", size / (1024.f * 1024 * 1024));
-        size += 512 * 1024 * 1024;
-        checkCudaErrors(cudaFree(d_ptr));
-    }
-    printf("Maximum global memory allocated: %zu bytes\n", maxSize);
-}
-
-
-int test_reduce() {
-    warpReduce<<< 1, 32 >>>();
-    cudaDeviceSynchronize();
-    return 0;
-}
-
-
 void test_reduce() {
-    
-    size_t num = 4096;
+    size_t num = 32;
     size_t size = num * sizeof(float);
     float src = (float*)calloc(size, sizeof(char));
     float dst = (float*)calloc(size, sizeof(char));
-
-    // init_rand_f32();
+    for (int i = 0; i < num; ++i) {
+        src[i] = static_cast<float>(i);
+    }
 
     float* src_d = NULL;
     float* dst_h = NULL;
@@ -383,23 +223,24 @@ void test_reduce() {
     cudaMemcpy(src_d, src, size, cudaMemcpyHostToDevice);
     cudaMemcpy(dst_d, dst, size, cudaMemcpyHostToDevice);
 
+
+
+
+
+
 }
 
 int main() {
     {
         dim3 grid(3, 1, 1);
         dim3 block(2, 1, 1);
-        // print_dims<<<grid, block>>>();
         CHECK(cudaDeviceReset());
     }
 
     {
         dim3 grid(4096, 1, 1);
         dim3 block(1, 1, 1);
-        
-        // vector_add_f32<<<grid, block>>>();
         vec_add_demo();
-        
     }
     
     return 0;
