@@ -1,0 +1,105 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/hbx/huang-baixin/cuda_practices/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	//
+%	00_cuda_basic/Makefile	/^% : %.cu$/;"	t
+APPS	00_cuda_basic/Makefile	/^APPS=demo simpleShfl reduceInteger $/;"	m
+BDIMX	00_cuda_basic/simpleShfl.cu	/^#define BDIMX /;"	d	file:
+CHECK	00_cuda_basic/common.h	/^#define CHECK(/;"	d
+CHECK	common.h	/^#define CHECK(/;"	d
+CHECK_CUBLAS	00_cuda_basic/common.h	/^#define CHECK_CUBLAS(/;"	d
+CHECK_CUBLAS	common.h	/^#define CHECK_CUBLAS(/;"	d
+CHECK_CUFFT	00_cuda_basic/common.h	/^#define CHECK_CUFFT(/;"	d
+CHECK_CUFFT	common.h	/^#define CHECK_CUFFT(/;"	d
+CHECK_CURAND	00_cuda_basic/common.h	/^#define CHECK_CURAND(/;"	d
+CHECK_CURAND	common.h	/^#define CHECK_CURAND(/;"	d
+CHECK_CUSPARSE	00_cuda_basic/common.h	/^#define CHECK_CUSPARSE(/;"	d
+CHECK_CUSPARSE	common.h	/^#define CHECK_CUSPARSE(/;"	d
+OFFSET	00_cuda_basic/demo.cu	/^#define OFFSET(/;"	d	file:
+SEGM	00_cuda_basic/simpleShfl.cu	/^#define SEGM /;"	d	file:
+_COMMON_H	00_cuda_basic/common.h	/^#define _COMMON_H$/;"	d
+_COMMON_H	common.h	/^#define _COMMON_H$/;"	d
+all	00_cuda_basic/Makefile	/^all : ${APPS}$/;"	t
+bcast2	00_cuda_basic/demo.cu	/^__global__ void bcast2(float* a, float* b) {$/;"	f	typeref:typename:void
+blogs	README.md	/^# blogs$/;"	c
+checkCudaErrors	00_cuda_basic/demo.cu	/^void checkCudaErrors(cudaError_t err) {$/;"	f	typeref:typename:void
+clean	00_cuda_basic/Makefile	/^clean :$/;"	t
+courses	README.md	/^# courses$/;"	c
+data	00_cuda_basic/plot.py	/^data = """$/;"	v
+e-books	README.md	/^# e-books$/;"	c
+flash_attn_f32	00_cuda_basic/demo.cu	/^__global__ void flash_attn_f32(const float* A, const float* B, float* C, int cols, int rows) {$/;"	f	typeref:typename:void
+gemm	README.md	/^## gemm$/;"	s	chapter:blogs
+gpgpu	README.md	/^# gpgpu$/;"	c
+hello_world	00_cuda_basic/demo.cu	/^__global__ void hello_world() {$/;"	f	typeref:typename:void
+labels	00_cuda_basic/plot.py	/^labels = []$/;"	v
+lines	00_cuda_basic/plot.py	/^lines = data.strip().split('\\n')$/;"	v
+main	00_cuda_basic/demo.cu	/^int main() {$/;"	f	typeref:typename:int
+main	00_cuda_basic/reduceInteger.cu	/^int main(int argc, char **argv)$/;"	f	typeref:typename:int
+main	00_cuda_basic/simpleShfl.cu	/^int main(int argc, char **argv)$/;"	f	typeref:typename:int
+mat_add	00_cuda_basic/demo.cu	/^__global__ void mat_add(const float* A, const float* B, float* C, int cols, int rows) {$/;"	f	typeref:typename:void
+mul_mat_demo	00_cuda_basic/demo.cu	/^int mul_mat_demo() {  $/;"	f	typeref:typename:int
+mul_mat_simple	00_cuda_basic/demo.cu	/^__global__ void mul_mat_simple(const float* __restrict__ A, const float* __restrict__ B, float* /;"	f	typeref:typename:void
+mul_mat_simple_f32	00_cuda_basic/demo.cu	/^__global__ void mul_mat_simple_f32(const float* src0, const float* src1, float* dst, int cols, i/;"	f	typeref:typename:void
+mul_mat_vec_simple_f32	00_cuda_basic/demo.cu	/^__global__ void mul_mat_vec_simple_f32(const float* A, const float* B, float* C, int cols, int r/;"	f	typeref:typename:void
+official-documentations	README.md	/^# official-documentations$/;"	c
+parts	00_cuda_basic/plot.py	/^    parts = line.split()$/;"	v
+plt	00_cuda_basic/plot.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
+printData	00_cuda_basic/simpleShfl.cu	/^void printData(int *in, const int size)$/;"	f	typeref:typename:void
+print_dims	00_cuda_basic/demo.cu	/^__global__ void print_dims() {$/;"	f	typeref:typename:void
+recursiveReduce	00_cuda_basic/reduceInteger.cu	/^int recursiveReduce(int *data, int const size)$/;"	f	typeref:typename:int
+reduceCompleteUnroll	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceCompleteUnroll(int *g_idata, int *g_odata,$/;"	f	typeref:typename:template<unsigned int iBlockSize> void
+reduceCompleteUnrollWarps8	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceCompleteUnrollWarps8 (int *g_idata, int *g_odata,$/;"	f	typeref:typename:void
+reduceInterleaved	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceInterleaved (int *g_idata, int *g_odata, unsigned int n)$/;"	f	typeref:typename:void
+reduceNeighbored	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceNeighbored (int *g_idata, int *g_odata, unsigned int n)$/;"	f	typeref:typename:void
+reduceNeighboredLess	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceNeighboredLess (int *g_idata, int *g_odata,$/;"	f	typeref:typename:void
+reduceUnrollWarps	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceUnrollWarps (int *g_idata, int *g_odata, unsigned int n)$/;"	f	typeref:typename:void
+reduceUnrollWarps8	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceUnrollWarps8 (int *g_idata, int *g_odata, unsigned int n)$/;"	f	typeref:typename:void
+reduceUnrolling2	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceUnrolling2 (int *g_idata, int *g_odata, unsigned int n)$/;"	f	typeref:typename:void
+reduceUnrolling4	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceUnrolling4 (int *g_idata, int *g_odata, unsigned int n)$/;"	f	typeref:typename:void
+reduceUnrolling8	00_cuda_basic/reduceInteger.cu	/^__global__ void reduceUnrolling8 (int *g_idata, int *g_odata, unsigned int n)$/;"	f	typeref:typename:void
+reduce_interleaved_addr	00_cuda_basic/demo.cu	/^__global__ void reduce_interleaved_addr(float* src, float* dst) {$/;"	f	typeref:typename:void
+reduce_simple	00_cuda_basic/demo.cu	/^__global__ void reduce_simple(float* src, float* dst) {$/;"	f	typeref:typename:void
+reduction	README.md	/^## reduction$/;"	s	chapter:blogs
+repos	README.md	/^# repos$/;"	c
+rope_f32	00_cuda_basic/demo.cu	/^__global__ void rope_f32(const float* A, const float* B, float* C, int cols, int rows) {$/;"	f	typeref:typename:void
+seconds	00_cuda_basic/common.h	/^inline double seconds()$/;"	f	typeref:typename:double
+seconds	common.h	/^inline double seconds()$/;"	f	typeref:typename:double
+silu_f32	00_cuda_basic/demo.cu	/^__global__ void silu_f32(const float* A, const float* B, float* C, int cols, int rows) {$/;"	f	typeref:typename:void
+softmax_simple_f32_2	00_cuda_basic/demo.cu	/^__global__ void softmax_simple_f32_2(const float* src0, float* dst, int size, bool inplace) {$/;"	f	typeref:typename:void
+swap	00_cuda_basic/simpleShfl.cu	/^void swap(int *value, int laneIdx, int mask, int firstIdx, int secondIdx)$/;"	f	typeref:typename:void
+swap_old	00_cuda_basic/simpleShfl.cu	/^void swap_old(int *value, int tid, int mask, int srcIdx, int dstIdx)$/;"	f	typeref:typename:void
+test_bank_confict	00_cuda_basic/demo.cu	/^__global__ void test_bank_confict() {$/;"	f	typeref:typename:void
+test_block_sched	00_cuda_basic/demo.cu	/^void test_block_sched() {$/;"	f	typeref:typename:void
+test_cublas	00_cuda_basic/demo.cu	/^void test_cublas() {$/;"	f	typeref:typename:void
+test_global_memory_coalesce_access	00_cuda_basic/demo.cu	/^__global__ void test_global_memory_coalesce_access() {$/;"	f	typeref:typename:void
+test_max_mem_size	00_cuda_basic/demo.cu	/^void test_max_mem_size() {$/;"	f	typeref:typename:void
+test_reduce	00_cuda_basic/demo.cu	/^int test_reduce() {$/;"	f	typeref:typename:int
+test_shfl_array	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_array(int *d_out, int *d_in, int const offset)$/;"	f	typeref:typename:void
+test_shfl_broadcast	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_broadcast(int *d_out, int *d_in, int const srcLane)$/;"	f	typeref:typename:void
+test_shfl_down	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_down(int *d_out, int *d_in, unsigned int const delta)$/;"	f	typeref:typename:void
+test_shfl_swap	00_cuda_basic/simpleShfl.cu	/^void test_shfl_swap (int *d_out, int *d_in, int const mask, int firstIdx,$/;"	f	typeref:typename:void
+test_shfl_swap_old	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_swap_old (int *d_out, int *d_in, int const mask,$/;"	f	typeref:typename:void
+test_shfl_up	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_up(int *d_out, int *d_in, unsigned int const delta)$/;"	f	typeref:typename:void
+test_shfl_wrap	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_wrap (int *d_out, int *d_in, int const offset)$/;"	f	typeref:typename:void
+test_shfl_wrap_plus	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_wrap_plus (int *d_out, int *d_in, int const offset)$/;"	f	typeref:typename:void
+test_shfl_xor	00_cuda_basic/demo.cu	/^__global__ void test_shfl_xor(int A[], int B[])$/;"	f	typeref:typename:void
+test_shfl_xor	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_xor(int *d_out, int *d_in, int const mask)$/;"	f	typeref:typename:void
+test_shfl_xor_array	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_xor_array(int *d_out, int *d_in, int const mask)$/;"	f	typeref:typename:void
+test_shfl_xor_array_swap	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_xor_array_swap (int *d_out, int *d_in, int const mask,$/;"	f	typeref:typename:void
+test_shfl_xor_array_swap_base	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_xor_array_swap_base (int *d_out, int *d_in,$/;"	f	typeref:typename:void
+test_shfl_xor_element	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_xor_element(int *d_out, int *d_in, int const mask,$/;"	f	typeref:typename:void
+test_shfl_xor_int4	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_xor_int4(int *d_out, int *d_in, int const mask)$/;"	f	typeref:typename:void
+test_shfl_xor_plus	00_cuda_basic/simpleShfl.cu	/^__global__ void test_shfl_xor_plus(int *d_out, int *d_in, int const mask)$/;"	f	typeref:typename:void
+test_stream_event	00_cuda_basic/demo.cu	/^void test_stream_event() {$/;"	f	typeref:typename:void
+times	00_cuda_basic/plot.py	/^times = []$/;"	v
+vec_add_demo	00_cuda_basic/demo.cu	/^int vec_add_demo() {  $/;"	f	typeref:typename:int
+vector_add	00_cuda_basic/demo.cu	/^__global__ void vector_add(const float* A, const float* B, float* C, int N) {$/;"	f	typeref:typename:void
+warpReduce	00_cuda_basic/demo.cu	/^__global__ void warpReduce() {$/;"	f	typeref:typename:void
+warp_reduce_sum	00_cuda_basic/demo.cu	/^static __device__ __forceinline__ float warp_reduce_sum(float x) {$/;"	f	typeref:typename:float	file:

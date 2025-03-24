@@ -1,0 +1,30 @@
+# 忽略所有编译生成的文件和目录
+build_cuda/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+
+# 忽略CMake生成的文件
+CMakeLists.txt.user
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+CMakeFiles/
+Makefile
+
+# 忽略日志、临时文件等
+*.log
+*.swp
+*.swo
+
+# 忽略特定工具的配置文件
+.vscode/
+.idea/
+
+# 忽略数据文件或目录，例如profile/plot下的图片文件
+profile/plot/*.png
+# 但是不排除README.md文件
+!README.md
