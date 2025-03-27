@@ -7,3 +7,10 @@ cuda practice
 [best-practices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)  
 [nsight-system](https://docs.nvidia.com/nsight-systems/UserGuide/index.html)  
 [nsight-compute](https://docs.nvidia.com/nsight-compute/NsightCompute/index.html)  
+
+
+# 100-days-cuda
+
+|  Date | action |
+|  ----  | ----  |
+| Day1 | |implemented three pass softmax|
